@@ -1,0 +1,20 @@
+{
+  "name": "mathisihub-backend",
+  "version": "1.0.0",
+  "description": "This repository contains the backend of the Mathisi Hub. \r Functions like Get, Post and Put can found in this repo.",
+  "main": "server.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "start": "nodemon server.js"
+  },
+  "author": "alfred",
+  "license": "ISC",
+  "dependencies": {
+    "cors": "^2.8.5",
+    "express": "^4.21.1",
+    "mongodb": "^6.10.0",
+    "nodemon": "^3.1.7",
+    "path": "^0.12.7",
+    "properties-reader": "^2.3.0"
+  }
+}
