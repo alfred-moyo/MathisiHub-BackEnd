@@ -44,7 +44,7 @@ connectDB();
 
 // Basic route for testing
 app.get('/', (req, res) => {
-    res.send('Hi There, Nqobile!');
+    res.send('Hi, Server is running!');
 });
 
 app.get('/lessons', async (req, res) => {
@@ -71,6 +71,8 @@ app.post('/order', async (req, res) => {
 
 // Start the server
 const PORT = process.env.PORT || 3000; // Use environment variable for the port or default to 3000
-app.listen(PORT, () => {
-    console.log(`Server is running on port ${PORT}`);
-});
+connectToMongoDB().then(() => {
+    app.listen(PORT, () => {
+        console.log(`Server is running on port http://localhost:${PORT}`);
+    });
+}).catch(console.err)
