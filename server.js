@@ -2,6 +2,13 @@ const express = require('express');
 const { MongoClient } = require('mongodb');
 const cors = require('cors');
 const PropertiesReader = require('properties-reader');
+const path = require('path');
+
+// Initialize Express
+const app = express();
+app.use(cors());
+app.use(express.json());
+
 
 // Load environment variables from properties file
 const properties = PropertiesReader('./dbconnection.properties');
@@ -16,16 +23,27 @@ const dbParams = properties.get('db.params');
 const dbURI = `${dbPrefix}${dbUser}:${dbPassword}@${dbHost}/${dbName}?${dbParams}`;
 
 
-// Initialize MongoDB client
+// Initializing the middleware logger
+app.use((req, res, next) => {
+    const time = new Date().toISOString();
+    console.log(`${req.method} ${req.url} - ${time}`);
+    next();
+})
+
+// static file middleware
+
+const imagePath = path.resolve(process.cwd(), 'images');
+app.use('/images', express.static(imagePath, { fallthrough: true }));
+
+// Handle 404 for missing images
+app.use('/images', (req, res) => {
+    console.log(`Image not found: ${req.originalUrl}`);
+    // res.status(404).json({ error: 'Image not found' });
+});
 
 
 let db; // Database instance
 let client;
-
-// Initialize Express
-const app = express();
-app.use(cors());
-app.use(express.json());
 
 // Connect to MongoDB
 async function connectDB() {
@@ -39,8 +57,6 @@ async function connectDB() {
         process.exit(1); // Exit the application on a connection error
     }
 }
-
-connectDB();
 
 // Basic route for testing
 app.get('/', (req, res) => {
@@ -71,8 +87,8 @@ app.post('/order', async (req, res) => {
 
 // Start the server
 const PORT = process.env.PORT || 3000; // Use environment variable for the port or default to 3000
-connectToMongoDB().then(() => {
+connectDB().then(() => {
     app.listen(PORT, () => {
         console.log(`Server is running on port http://localhost:${PORT}`);
     });
-}).catch(console.err)
+}).catch(console.err);
