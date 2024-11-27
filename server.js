@@ -74,6 +74,46 @@ app.get('/lessons', async (req, res) => {
     }
 });
 
+app.get('/search', async (req, res) => {
+    try {
+        const searchQuery = req.query.term; 
+        if (!searchQuery) {
+            return res.status(400).json({ error: "Search query is required" });
+        }
+
+        const database = client.db('Xkool-eShop');
+        const collection = database.collection('Programs');
+
+        let query = {};
+        
+
+        if (!isNaN(searchQuery)) {
+            const numberAsString = searchQuery.toString();
+            query = {
+                $or: [
+                    { $expr: { $regexMatch: {input: { $toString: "$price" }, regex: numberAsString, options: "i" } } }, 
+                    { $expr: { $regexMatch: {input: { $toString: "$availableSpaces" }, regex: numberAsString, options: "i" } } }
+                ]
+            };
+        } else {
+            query = {
+                $or: [
+                    { title: { $regex: searchQuery, $options: 'i' } }, 
+                    { location: { $regex: searchQuery, $options: 'i' } }                 
+                ]
+            };
+        }
+
+        const results = await collection.find(query).toArray();
+
+        res.json(results);
+        console.log(`Search successful with query: "${searchQuery}"`);
+    } catch (error) {
+        res.status(500).json({ error: "Search Failed!" });
+        console.error("Error performing search:", error);
+    }
+});
+
 app.post('/order', async (req, res) => {
     try{
         const order = req.body;
