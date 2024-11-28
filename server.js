@@ -86,7 +86,7 @@ app.post('/order', async (req, res) => {
 // Search endpoint
 app.get('/search', async (req, res) => {
     try {
-        const searchQuery = req.query.term;
+        const searchQuery = req.query.word;
         if (!searchQuery) {
             return res.status(400).json({ error: "Search query is required" });
         }
