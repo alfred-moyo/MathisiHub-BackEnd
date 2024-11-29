@@ -120,6 +120,49 @@ app.get('/search', async (req, res) => {
     }
 });
 
+app.use((req, res, next) => {
+    console.log('Incoming Request:');
+    console.log('Method:', req.method);
+    console.log('URL:', req.url);
+    console.log('Headers:', req.headers);
+    next();
+});
+
+// Update lesson endpoint
+// Update lesson endpoint
+app.put('/lessons/:id', async (req, res) => {
+    try {
+        const lessonId = parseInt(req.params.id);  // Convert to number since id is numeric
+        console.log('Received lessonId:', lessonId);
+
+        const updates = req.body;
+        console.log('Received updates:', updates);
+
+        // Perform the update operation using the numeric id field
+        const result = await db.collection('lessons').updateOne(
+            { id: lessonId },  // Use id instead of _id
+            { $set: updates }
+        );
+
+        if (result.matchedCount === 0) {
+            console.log('No lesson matched the query.');
+            return res.status(404).json({ error: 'Lesson not found' });
+        }
+
+        // Fetch and return the updated document
+        const updatedLesson = await db.collection('lessons').findOne(
+            { id: lessonId }
+        );
+
+        res.status(200).json(updatedLesson);
+
+    } catch (err) {
+        console.error('Error updating lesson:', err);
+        res.status(500).json({ error: 'Failed to update lesson' });
+    }
+});
+
+
 // Start the server
 const PORT = process.env.PORT || 3000; // Use environment variable for the port or default to 3000
 connectDB().then(() => {
